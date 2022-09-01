@@ -213,7 +213,7 @@ class Af_Readability extends Plugin {
 
     $output = @json_decode(curl_exec($curl));
     curl_close($curl);
-    if ($output === null or $output->data->text === null) {
+    if ($output === null or !property_exists($output, "data")) {
       return "<b>Fail to load message - may be authentication error</b>";
     }
 
