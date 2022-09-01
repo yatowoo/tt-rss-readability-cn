@@ -223,6 +223,18 @@ class Af_Readability extends Plugin {
     }
     return $entry_text;
   }
+  public function extract_content_weixin(string $url)
+  {
+    $raw_html = UrlHelper::fetch([
+      "url" => $url,
+      "http_accept" => "text/*",
+      "type" => "text/html"
+    ]);
+    $tmpdoc = new DOMDocument("1.0", "UTF-8");
+    if (!@$tmpdoc->loadHTML($raw_html))
+      return false;
+    return $tmpdoc->getElementById("page-content");
+  }
   /**
    * @param string $url
    * @return string|false
@@ -231,6 +243,8 @@ class Af_Readability extends Plugin {
   {
     if (str_contains($url, "weibo.com") || str_contains($url, "weibo.cn")) {
       return $this->extract_content_weibo($url);
+    }else if(str_contains($url, "weixin.qq.com")) {
+      return $this->extract_content_weixin($url);
     }
 
 		$tmp = UrlHelper::fetch([
