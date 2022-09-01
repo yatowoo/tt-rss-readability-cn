@@ -211,14 +211,16 @@ class Af_Readability extends Plugin {
     );
     curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
 
-    $output = json_decode(curl_exec($curl));
+    $output = @json_decode(curl_exec($curl));
     curl_close($curl);
+    if ($output === null or $output->data->text === null) {
+      return "<b>Fail to load message - may be authentication error</b>";
+    }
 
     $entry_text = $output->data->text;
     foreach ($output->data->pics as $pic) {
       $entry_text = $entry_text . "<img src=\"{$pic->large->url}\" />";
     }
-
     return $entry_text;
   }
   /**
