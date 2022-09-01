@@ -219,8 +219,7 @@ class Af_Readability extends Plugin {
       $entry_text = $entry_text . "<img src=\"{$pic->large->url}\" />";
     }
 
-    $output->content = $entry_text;
-    return $output;
+    return $entry_text;
   }
   /**
    * @param string $url
