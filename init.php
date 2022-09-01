@@ -190,11 +190,47 @@ class Af_Readability extends Plugin {
 		return $article;
 	}
 
-	/**
-	 * @param string $url
-	 * @return string|false
-	 */
-	public function extract_content(string $url) {
+  public function extract_content_weibo(string $url)
+  {
+    // $link_format - http://weibo.com/{uid}/{bid};
+    $vars = explode("/", $url);
+    $vars_len = count($vars);
+    $uid = $vars[$vars_len - 2];
+    $bid = $vars[$vars_len - 1];
+    $api_url = "https://m.weibo.cn/statuses/show?id={$bid}";
+
+    $curl = curl_init($api_url);
+    curl_setopt($curl, CURLOPT_URL, $api_url);
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+
+    $headers = array(
+      "Referer: https://m.weibo.cn/u/${uid}",
+      "MWeibo-Pwa: 1",
+      "X-Requested-With: XMLHttpRequest",
+      "User-Agent: Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1",
+    );
+    curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+
+    $output = json_decode(curl_exec($curl));
+    curl_close($curl);
+
+    $entry_text = $output->data->text;
+    foreach ($output->data->pics as $pic) {
+      $entry_text = $entry_text . "<img src=\"{$pic->large->url}\" />";
+    }
+
+    $output->content = $entry_text;
+    return $output;
+  }
+  /**
+   * @param string $url
+   * @return string|false
+   */
+  public function extract_content(string $url)
+  {
+    if (str_contains($url, "weibo.com") || str_contains($url, "weibo.cn")) {
+      return $this->extract_content_weibo($url);
+    }
 
 		$tmp = UrlHelper::fetch([
 			"url" => $url,
