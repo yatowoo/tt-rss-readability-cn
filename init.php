@@ -277,9 +277,12 @@ class Af_Readability extends Plugin {
 							} else {
 								$src = $entry->getAttribute("src");
 							}
-							$entry->setAttribute("src",
-								UrlHelper::rewrite_relative(UrlHelper::$fetch_effective_url, $src));
-
+              if( !str_starts_with($src, "http")){
+                $entry->setAttribute("src",
+                  UrlHelper::rewrite_relative(UrlHelper::$fetch_effective_url, $src));
+              }else{
+                $entry->setAttribute("src",$src);
+              }
 						}
 					}
 
