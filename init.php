@@ -233,7 +233,8 @@ class Af_Readability extends Plugin {
     $tmpdoc = new DOMDocument("1.0", "UTF-8");
     if (!@$tmpdoc->loadHTML($raw_html))
       return false;
-    return $tmpdoc->getElementById("page-content");
+    $contentNode = $tmpdoc->getElementById("page-content");
+    return $contentNode->ownerDocument->SaveHTML($contentNode);
   }
   /**
    * @param string $url
@@ -411,7 +412,13 @@ class Af_Readability extends Plugin {
 		$ret = [];
 
 		if ($row = $sth->fetch()) {
-			$ret["content"] = Sanitizer::sanitize($this->extract_content($row["link"]));
+      $url = $row["link"];
+
+      if(str_contains($url, "weixin.qq.com")) {
+        $ret["content"] = $this->extract_content($row["link"]);
+      }else{
+        $ret["content"] = Sanitizer::sanitize($this->extract_content($row["link"]));
+      }
 		}
 
 		print json_encode($ret);
