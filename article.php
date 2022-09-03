@@ -49,6 +49,11 @@ class Article extends Handler_Protected {
 
 		$content_hash = sha1($content);
 
+		// Try to cache all published article, esp. for ShareAnything
+		$url_vars = parse_url($url);
+		$site_url = $url_vars["scheme"] . "://" . $url_vars["host"];
+		RSSUtils::cache_media($content, $site_url);
+
 		if ($labels_str != "") {
 			$labels = explode(",", $labels_str);
 		} else {
