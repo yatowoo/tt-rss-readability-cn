@@ -237,7 +237,21 @@ class Af_Readability extends Plugin {
       return false;
     $entry = $tmpdoc->getElementsByTagName('item')->item(0);
 
-    return $entry->textContent;
+    $item = json_decode('{"title":"", "description":"", "author":"", "pubDate":"", "link":""}');
+    foreach($entry->childNodes as $child ){
+      if ($child->nodeName === "title"){
+        $item->title = $child->textContent;
+      }elseif($child->nodeName === "description"){
+        $item->description = $child->textContent;
+      }elseif($child->nodeName === "author"){
+        $item->author = $child->textContent;
+      }elseif($child->nodeName === "pubDate"){
+        $item->pubDate = $child->textContent;
+      }elseif($child->nodeName === "link"){
+        $item->link = $child->textContent;
+      }
+    }
+    return '<p>Author : ' . $item->author . '</p><p> Date : ' . $item->pubDate . '</p><hr>' . $item->description;
   }
   /**
    * @param string $url
