@@ -225,16 +225,16 @@ class Af_Readability extends Plugin {
   }
   public function extract_content_weixin(string $url)
   {
-    $raw_html = UrlHelper::fetch([
-      "url" => $url,
-      "http_accept" => "text/*",
-      "type" => "text/html"
-    ]);
-    $tmpdoc = new DOMDocument("1.0", "UTF-8");
-    if (!@$tmpdoc->loadHTML($raw_html))
-      return false;
-    $contentNode = $tmpdoc->getElementById("page-content");
-    return $contentNode->ownerDocument->SaveHTML($contentNode);
+		$vars = explode("/", $url);
+		$querystring = $vars[1];
+		$content = file_get_contents("https://ustc.fun/rss/ext-route/wechat/{$querystring}?key=");
+ 
+		// Instantiate XML element
+		$a = new SimpleXMLElement($content);
+				 
+		$entry = $a->channel->item[0];
+		$content = $entry->title . '</br>' . $entry->author . '</br>' . $entry->pubDate . '</br>' . $entry->description;
+		return $content;
   }
   /**
    * @param string $url
