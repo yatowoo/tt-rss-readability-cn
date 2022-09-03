@@ -269,6 +269,67 @@ class Af_Readability extends Plugin
     }
     return '<p>Author : ' . $item->author . '</p><p> Date : ' . $item->pubDate . '</p><hr>' . $item->description;
   }
+  public function extract_content_twitter(string $url)
+  {
+    $url_vars = parse_url($url);
+    // TODO: by RSSHub ext-route?
+    // Replace host to http
+    $site_url = "https://nitter.net";
+    $api_url = $site_url . $url_vars["path"];
+    
+    $htmlstring = UrlHelper::fetch([
+      "url" => $api_url,
+      "http_accept" => "text/*",
+      "type" => "text/html"
+    ]);
+    
+    $tmpdoc = new DOMDocument("1.0", "UTF-8");
+    if (!@$tmpdoc->loadHTML(mb_convert_encoding($htmlstring, 'HTML-ENTITIES', 'UTF-8')))
+        return false;
+
+    $html_main = $tmpdoc->getElementById('m');
+    $tweet_xpath = new DOMXPath($html_main->ownerDocument);
+    
+    $tweet_entry = json_decode('{}');
+    
+    function query_node(string $querystring, DOMXPath $xpath) : DOMNode{
+      return $xpath->query($querystring)[0];
+    }
+    // User - div.fullname + username
+    $querystring = './/a[contains(concat(" ",normalize-space(@class)," ")," fullname ")]';
+    $tweet_entry->fullname = $tweet_xpath->query($querystring)[0]->textContent;
+    $querystring = './/a[contains(concat(" ",normalize-space(@class)," ")," username ")]';
+    $tweet_entry->username = $tweet_xpath->query($querystring)[0]->textContent;
+      // Avatar - img.avatar
+    $avatar_url  = $site_url . query_node('.//img[contains(concat(" ",normalize-space(@class)," ")," avatar ")]', $tweet_xpath)->getAttribute("src");
+    // Date - span.tweet-date a
+    $querystring = './/span[contains(concat(" ",normalize-space(@class)," ")," tweet-date ")]//a';
+    $node_tmp = $tweet_xpath->query($querystring)[0];
+    $tweet_entry->url = $site_url . $node_tmp->getAttribute("href");
+    $tweet_entry->timestamp = $node_tmp->getAttribute("title");
+    // Text - div.tweet-content
+    $node_tmp = query_node('.//div[contains(concat(" ",normalize-space(@class)," ")," tweet-content ")]', $tweet_xpath);
+    $tweet_entry->text = $node_tmp->ownerDocument->saveHTML($node_tmp);
+    // Contents
+    $entry_content = "<img src=\"{$avatar_url}\" style=\"max-width:50px; float:left;\"/>" . "<p><a href=\"{$url}\">Twitter</a> - {$tweet_entry->fullname}{$tweet_entry->username}</p>" . "<p>{$tweet_entry->timestamp}, cached via <a href=\"{$api_url}\">Nitter</a></p>" . "<hr><p>{$tweet_entry->text}</p><hr>";
+    
+    // Stats - span.tweet-stat
+    $querystring = './/span[contains(concat(" ",normalize-space(@class)," ")," tweet-stat ")]';
+    $statstring = "";
+    foreach($tweet_xpath->query($querystring) as $child){
+      $node_stat = $child->getElementsByTagName("span")[0];
+      $stats_type = str_replace("icon-", "", $node_stat->getAttribute("class"));
+      $statstring = $statstring . " | {$stats_type} : {$child->textContent} | ";
+    }
+    $entry_content = $entry_content . "<p>{$statstring}</p><hr>";
+    
+    // Images - div.attachment.image a.still-image
+    $querystring = './/a[contains(concat(" ",normalize-space(@class)," ")," still-image ")]';
+    foreach($tweet_xpath->query($querystring) as $node_img){
+      $img_url = $site_url . $node_img->getAttribute("href");
+      $entry_content = $entry_content . "<img src=\"{$img_url}\" alt />";
+    }
+  }
   /**
    * @param string $url
    * @return string|false
@@ -279,6 +340,8 @@ class Af_Readability extends Plugin
       return $this->extract_content_weibo($url);
     } else if (str_contains($url, "weixin.qq.com")) {
       return $this->extract_content_weixin($url);
+    } else if (str_contains($url, "twitter.com")) {
+      return $this->extract_content_twitter($url);
     }
 
     $tmp = UrlHelper::fetch([
