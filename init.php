@@ -216,8 +216,11 @@ class Af_Readability extends Plugin {
     if ($output === null or !property_exists($output, "data")) {
       return "<b>Fail to load message - may be authentication error</b>";
     }
-
-    $entry_text = $output->data->text;
+    $entry_text = "";
+    $entry_text = $entry_text . "<p>Author : {$output->data->user->screen_name}</p>";
+    $entry_text = $entry_text . "<p>Created : {$output->data->created_at}</p>";
+    $entry_text = $entry_text . "<p>Weibo source : {$output->data->source}</p>";
+    $entry_text = $entry_text . "<p>" . $output->data->text . "</p>";
     foreach ($output->data->pics as $pic) {
       $entry_text = $entry_text . "<img src=\"{$pic->large->url}\" />";
     }
