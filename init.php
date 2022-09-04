@@ -241,7 +241,15 @@ class Af_Readability extends Plugin
   }
   public function extract_content_weixin(string $url)
   {
-    $querystring = preg_replace("/.*\?(.*)&chksm.*/i", "$1", $url);
+    // full url = https://mp.weixin.qq.com/s?__biz=MjM5OTYxMjc0MA==&mid=2652753480&idx=1&sn=0b489091ec61243a8803dfee7e738b70
+    // short url = https://mp.weixin.qq.com/s/8DmyX-YDRZwONxbXEGCxbw
+    $url_vars = parse_url($url);
+    $site_url = $url_vars["scheme"] . $url_vars["host"];
+    if(!array_key_exists("query", $url_vars)){
+      $querystring = str_replace("/s/","", $url_vars["path"]);
+    }else{
+      $querystring = preg_replace("/(.*)&chksm.*/i", "$1", $url_vars["query"]);
+    }
     $api_url = "https://ustc.fun/rss/ext-route/wechat/{$querystring}/?key=";
     $tmp = UrlHelper::fetch([
       "url" => $api_url
