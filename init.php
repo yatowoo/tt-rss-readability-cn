@@ -297,11 +297,20 @@ class Af_Readability extends Plugin
     $site_url = "https://nitter.net";
     $api_url = $site_url . $url_vars["path"];
     
-    $htmlstring = UrlHelper::fetch([
-      "url" => $api_url,
-      "http_accept" => "text/*",
-      "type" => "text/html"
-    ]);
+    // User curl with cookie
+    $curl_handler = curl_init($api_url);
+    curl_setopt($curl_handler, CURLOPT_URL, $api_url);
+    curl_setopt($curl_handler, CURLOPT_RETURNTRANSFER, true);
+
+    $headers = array(
+      "User-agent: Tiny Tiny RSS (https://tt-rss.org/)",
+      "Accept: text/*",
+      "Cookie: hlsPlayback=on;", // enable for video src url
+    );
+    curl_setopt($curl_handler, CURLOPT_HTTPHEADER, $headers);
+
+    $htmlstring = curl_exec($curl_handler);
+    curl_close($curl_handler);
     
     $tmpdoc = new DOMDocument("1.0", "UTF-8");
     if (!@$tmpdoc->loadHTML(mb_convert_encoding($htmlstring, 'HTML-ENTITIES', 'UTF-8')))
