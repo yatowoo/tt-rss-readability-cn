@@ -343,6 +343,14 @@ class Af_Readability extends Plugin
       $entry_content = $entry_content . "<img src=\"{$img_url}\" alt />";
     }
 
+    // Video
+    $querystring = './/*[@id="m"]//video';
+    foreach($tweet_xpath->query($querystring) as $node_video){
+      $video_poster = $site_url . $node_video->getAttribute("poster");
+      $video_url = $site_url . $node_video->getAttribute("data-url");
+      $entry_content = $entry_content . "<video poster=\"{$video_poster}\" data-url=\"{$video_url}\" data-autoload=\"false\"></video>";
+    }
+
     return $entry_content;
   }
   /**
