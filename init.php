@@ -247,7 +247,7 @@ class Af_Readability extends Plugin
       if($video_url === null){
         $video_url = $output->data->page_info->urls->mp4_hd_mp4;
       }
-      $entry_text = $entry_text . "<video poster=\"{$video_poster}\" data-url=\"{$video_url}\" data-autoload=\"false\"></video>";
+      $entry_text = $entry_text . "<video poster=\"{$video_poster}\" src=\"{$video_url}\" controls></video>";
     }
     return $entry_text;
   }
@@ -357,10 +357,16 @@ class Af_Readability extends Plugin
 
     // Video
     $querystring = './/*[@id="m"]//video';
-    foreach($tweet_xpath->query($querystring) as $node_video){
+      // DEBUG - null from XPath or html_main->getElementsByTagName("video")
+    //foreach($tweet_xpath->query($querystring) as $node_video){
+    foreach($tmpdoc->getElementsByTagName("video") as $node_video){
       $video_poster = $site_url . $node_video->getAttribute("poster");
-      $video_url = $site_url . $node_video->getAttribute("data-url");
-      $entry_content = $entry_content . "<video poster=\"{$video_poster}\" data-url=\"{$video_url}\" data-autoload=\"false\"></video>";
+      $video_src = $node_video->getAttribute("data-url");
+      if($video_src === "" and $node_video->getAttribute("class") === "gif"){
+        $video_src = $node_video->getElementsByTagName("source")[0]->getAttribute("src");
+      }
+      $video_url = $site_url . $video_src;
+      $entry_content = $entry_content . "<video poster=\"{$video_poster}\" src=\"{$video_url}\" controls></video>";
     }
 
     return $entry_content;
