@@ -237,6 +237,18 @@ class Af_Readability extends Plugin
     foreach ($output->data->pics as $pic) {
       $entry_text = $entry_text . "<img src=\"{$pic->large->url}\" />";
     }
+    // Video
+    if( $output->data->page_info->type === "video"){
+      // Poster: page_info->page_pic->url
+      // Video: page_info->urls->mp4_[720p,hd,ld]_mp4
+      // Stream: page_info->media_info->stream_url[_hd]
+      $video_poster = $output->data->page_info->page_pic->url;
+      $video_url = $output->data->page_info->urls->mp4_720p_mp4;
+      if($video_url === null){
+        $video_url = $output->data->page_info->urls->mp4_hd_mp4;
+      }
+      $entry_text = $entry_text . "<video poster=\"{$video_poster}\" data-url=\"{$video_url}\" data-autoload=\"false\"></video>";
+    }
     return $entry_text;
   }
   public function extract_content_weixin(string $url)
