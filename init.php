@@ -238,7 +238,7 @@ class Af_Readability extends Plugin
       $entry_text = $entry_text . "<img src=\"{$pic->large->url}\" />";
     }
     // Video
-    if( $output->data->page_info->type === "video"){
+    if( array_key_exists("page_info", $output->data) and $output->data->page_info->type === "video"){
       // Poster: page_info->page_pic->url
       // Video: page_info->urls->mp4_[720p,hd,ld]_mp4
       // Stream: page_info->media_info->stream_url[_hd]
