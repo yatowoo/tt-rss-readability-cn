@@ -2370,7 +2370,11 @@ class Feeds extends Handler_Protected {
 
 						if (Config::get(Config::DB_TYPE) == "pgsql") {
 							$k = mb_strtolower($k);
-							array_push($search_query_leftover, $not ? "!$k" : $k);
+							//array_push($search_query_leftover, $not ? "!$k" : $k);
+							array_push($query_keywords, "((LOWER(ttrss_entries.content) LIKE ".
+							$pdo->quote('%' . mb_strtolower($k) . '%') ."))" .
+							" OR ". "((LOWER(ttrss_entries.title) LIKE ".
+							$pdo->quote('%' . mb_strtolower($k) . '%') ."))");
 						} else {
 							$k = mb_strtolower($k);
 							array_push($search_query_leftover, $not ? "-$k" : $k);
@@ -2387,7 +2391,6 @@ class Feeds extends Handler_Protected {
 		if (count($search_query_leftover) > 0) {
 
 			if (Config::get(Config::DB_TYPE) == "pgsql") {
-
 				// if there's no joiners consider this a "simple" search and
 				// concatenate everything with &, otherwise don't try to mess with tsquery syntax
 				if (preg_match("/[&|]/", implode(" " , $search_query_leftover))) {
