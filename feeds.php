@@ -2371,10 +2371,8 @@ class Feeds extends Handler_Protected {
 						if (Config::get(Config::DB_TYPE) == "pgsql") {
 							$k = mb_strtolower($k);
 							//array_push($search_query_leftover, $not ? "!$k" : $k);
-							array_push($query_keywords, "((LOWER(ttrss_entries.content) LIKE ".
-							$pdo->quote('%' . mb_strtolower($k) . '%') ."))" .
-							" OR ". "((LOWER(ttrss_entries.title) LIKE ".
-							$pdo->quote('%' . mb_strtolower($k) . '%') ."))");
+							array_push($query_keywords, "(UPPER(ttrss_entries.title) $not LIKE UPPER('%$k%')
+							OR UPPER(ttrss_entries.content) $not LIKE UPPER(".$pdo->quote("%$k%")."))");
 						} else {
 							$k = mb_strtolower($k);
 							array_push($search_query_leftover, $not ? "-$k" : $k);
