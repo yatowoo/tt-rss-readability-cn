@@ -2252,6 +2252,17 @@ class Feeds extends Handler_Protected {
 			$commandpair = explode(":", mb_strtolower($k), 2);
 
 			switch ($commandpair[0]) {
+				case "content":
+				case "c":
+					if ($commandpair[1]) {
+						array_push($query_keywords, "($not (LOWER(ttrss_entries.content) LIKE ".
+							$pdo->quote('%' . mb_strtolower($commandpair[1]) . '%') ."))");
+					} else {
+						array_push($query_keywords, "(UPPER(ttrss_entries.content) $not LIKE UPPER('%$k%')
+								OR UPPER(ttrss_entries.content) $not LIKE UPPER(".$pdo->quote("%$k%")."))");
+						array_push($search_words, $k);
+					}
+					break;
 				case "title":
 					if ($commandpair[1]) {
 						array_push($query_keywords, "($not (LOWER(ttrss_entries.title) LIKE ".
