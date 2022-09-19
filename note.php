@@ -54,7 +54,7 @@ class Note extends Plugin {
 
 	function setNote() : void {
 		$id = (int)clean($_REQUEST["id"]);
-		$note = clean($_REQUEST["note"]);
+		$note = $_REQUEST["note"]; // TODO: support MD, render by js
 
 		$sth = $this->pdo->prepare("UPDATE ttrss_user_entries SET note = ?
 			WHERE ref_id = ? AND owner_uid = ?");
