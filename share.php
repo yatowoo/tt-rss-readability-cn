@@ -222,9 +222,13 @@ class Share extends Plugin {
 							<?= $line["content"] ?>
 						</div>
 						<div class="header"><h2>Note</h2></div>
-						<div class='content' lang="<?= $line['lang'] ? $line['lang'] : "en" ?>">
-							<?= $line["note"] ?>
+						<div class='content' id='note' lang="<?= $line['lang'] ? $line['lang'] : "en" ?>">
 						</div>
+						<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  					<script>
+    					document.getElementById('note').innerHTML =
+      				marked.parse('<?= $line["note"] ?>');
+  					</script>
 					</div>
 				</body>
 			</html>
