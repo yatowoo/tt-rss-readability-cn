@@ -227,7 +227,7 @@ class Share extends Plugin {
 						<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   					<script>
     					document.getElementById('note').innerHTML =
-      				marked.parse('<?= $line["note"] ?>');
+      				marked.parse(`<?= $line["note"] ?>`);
   					</script>
 					</div>
 				</body>
