@@ -224,10 +224,12 @@ class Share extends Plugin {
 						<div class="header"><h2>Note</h2></div>
 						<div class='content' id='note' lang="<?= $line['lang'] ? $line['lang'] : "en" ?>">
 						</div>
-						<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+						<script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/2.1.0/showdown.min.
+js"></script>
   					<script>
+							var converter = new showdown.Converter();
     					document.getElementById('note').innerHTML =
-      				marked.parse(`<?= str_replace('`','\\`', $line["note"])  ?>`);
+      					converter.makeHtml(`<?= str_replace('`','\\`', $line["note"])  ?>`);
   					</script>
 					</div>
 				</body>
